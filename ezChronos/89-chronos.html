@@ -1,0 +1,113 @@
+<!-- Swapan Sarkar <swapan@yahoo.com> -->
+<script type="text/x-red" data-template-name="chronos in">
+    <div class="form-row node-input-serial">
+        <label for="node-input-chronos"><i class="fa fa-random"></i> Serial Port</label>
+        <input type="text" id="node-input-chronos">
+    </div>
+
+    <br/>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+
+<script type="text/x-red" data-help-name="chronos in">
+   <p>Chronos source node. It gets accelerator and button data from the 
+   ez430-chronos watch using the USB dongle attached to the host running
+   NODE-RED.</p>
+   <p>Outputs an object called <b>msg.payload</b> which is a JSON object
+   {"b":value, "x":value, "y":value, "z":value}.</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('chronos in',{
+        category: 'input',      // the palette category
+        defaults: {             // defines the editable properties of the node
+            name:   {value:""}, //  along with default values.
+            chronos: {type:"chronos-port",required:true}
+        },
+        color: "#3FADB5",
+        inputs:0,               // set the number of inputs - only 0 or 1
+        outputs:1,              // set the number of outputs - 0 to n
+        // set the icon (held in icons dir below where you save the node)
+        icon: "serial.png",     // saved in  icons/myicon.png
+        label: function() {     // sets the default label contents
+            return this.name||this.topic||"chronos";
+        },
+        labelStyle: function() { // sets the class to apply to the label
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="chronos-port">
+    <div class="form-row">
+        <label for="node-config-input-chronosport"><i class="fa fa-random"></i> Serial Port</label>
+        <input type="text" id="node-config-input-chronosport" style="width:60%;" placeholder="/dev/ttyACM0"/>
+        <a id="node-config-lookup-chronos" class="btn"><i id="node-config-lookup-serial-icon" class="fa fa-search"></i></a>
+    </div>
+    <div class="form-row">
+        <table><tr>
+            <td width="102px"><i class="fa fa-wrench"></i> Settings</td>
+            <td width="102px">Baud Rate</td>
+        </tr><tr><td>&nbsp;</td>
+        <td>
+        <select type="text" id="node-config-input-serialbaud" style="width: 102px;" disabled>
+            <option value="115200">115200</option>
+        </select>
+        </td>
+        </tr></table>
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('chronos-port',{
+        category: 'config',
+        defaults: {
+            //name: {value:""},
+            chronosport: {value:"",required:true},
+            serialbaud: {value:115200,required:true}
+        },
+        label: function() {
+            this.serialbaud = this.serialbaud || 115200;
+            this.databits = this.databits || 8;
+            this.parity = this.parity || 'none';
+            this.stopbits = this.stopbits || 1;
+            return this.chronosport+":"+this.serialbaud+"-"+this.databits+this.parity.charAt(0).toUpperCase()+this.stopbits;
+        },
+        oneditprepare: function() {
+            var previous = null;
+            $("#node-config-input-out").on('focus', function () { previous = this.value; }).change(function() {
+                if (previous == null) { previous = $("#node-config-input-out").val(); }
+            });
+
+            try {
+                $("#node-config-input-chronosport").autocomplete( "destroy" );
+            } catch(err) {
+            }
+            $("#node-config-lookup-chronos").click(function() {
+                //$("#node-config-lookup-serial-icon").removeClass('fa fa-search');
+                //$("#node-config-lookup-serial-icon").addClass('fa fa-spinner');
+                $("#node-config-lookup-chronos").addClass('disabled');
+                $.getJSON('serialports',function(data) {
+                    //$("#node-config-lookup-serial-icon").addClass('fa fa-search');
+                    //$("#node-config-lookup-serial-icon").removeClass('fa fa-spinner');
+                    $("#node-config-lookup-chronos").removeClass('disabled');
+                    var ports = [];
+                    $.each(data, function(i, port){
+                        ports.push(port.comName);
+                    });
+                    $("#node-config-input-chronosport").autocomplete({
+                        source:ports,
+                        minLength:0,
+                        close: function( event, ui ) {
+                            $("#node-config-input-chronosport").autocomplete( "destroy" );
+                        }
+                    }).autocomplete("search","");
+                });
+            });
+        }
+    });
+</script>

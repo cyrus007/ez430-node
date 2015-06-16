@@ -1,0 +1,22 @@
+{
+    "name": "ez430",
+    "version": "0.0.1",
+    "description": "ez430 on node.js",
+    "main": "index.js",
+    "engines": {
+        "node": "0.10.x"
+    },
+    "keywords": [
+        "ez430",
+        "ezChronos"
+    ],
+    "author": {
+        "name": "Swapan Sarkar",
+        "email": " <swapan@yahoo.com>",
+    }
+    "license": "MIT",
+    "readmeFilename": "README.md",
+    "dependencies": {
+        "serialport": "1.0.x"
+    }
+}
