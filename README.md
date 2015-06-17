@@ -19,4 +19,4 @@ It has been tested to work on a RaspberryPi 2B running the [thethingbox](http://
 
 ## License
 
-[MIT license](LICENSE).
+[Apache 2.0 license](LICENSE).
